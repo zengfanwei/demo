@@ -3,7 +3,7 @@
 import sys 
 sys.path.insert(0, 'D:\workspace\UITest_TsumTsum\Basics_test')
 from Config_test import PROJECT_PATH
-from RunCase import Run
+from RunCase import run
 
 
 import wx
@@ -453,7 +453,7 @@ class MyToolBar2(aui2.AuiToolBar):
         self.Bind(wx.EVT_TOOL, self.OnPlayTool, id=ID_ToolBar+100)
     
     def OnPlayTool(self, event):
-        Run()
+        run()
         
 # ---------------------------------------------------------------------------
 
