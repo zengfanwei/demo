@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>自动化测试报告</title>
+    <meta name="generator" content="HTMLTestRunner 0.8.2.1"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    
+<style type="text/css" media="screen">
+body        { font-family: Microsoft YaHei,Tahoma,arial,helvetica,sans-serif;padding: 20px; font-size: 80%; }
+table       { font-size: 100%; }
+/* -- heading ---------------------------------------------------------------------- */
+.heading {
+    margin-top: 0ex;
+    margin-bottom: 1ex;
+}
+.heading .description {
+    margin-top: 4ex;
+    margin-bottom: 6ex;
+}
+.piechart{  
+    position:absolute;  ;
+    top:50px;  
+    left:400px; 
+    width: 200px;
+    float: left;
+    display:  inline;
+}
+/* -- report ------------------------------------------------------------------------ */
+#total_row  { font-weight: bold; }
+.passCase   { color: #5cb85c; }
+.failCase   { color: #d9534f; font-weight: bold; }
+.errorCase  { color: #f0ad4e; font-weight: bold; }
+.hiddenRow  { display: none; }
+.testcase   { margin-left: 2em; }
+</style>
+
+</head>
+<body >
+<script language="javascript" type="text/javascript">
+output_list = Array();
+/*level 调整增加只显示通过用例的分类 --Findyou
+0:Summary //all hiddenRow
+1:Failed  //pt hiddenRow, ft none
+2:Pass    //pt none, ft hiddenRow
+3:All     //pt none, ft none
+*/
+function showCase(level) {
+    trs = document.getElementsByTagName("tr");
+    for (var i = 0; i < trs.length; i++) {
+        tr = trs[i];
+        id = tr.id;
+        if (id.substr(0,2) == 'ft') {
+            if (level == 2 || level == 0 ) {
+                tr.className = 'hiddenRow';
+            }
+            else {
+                tr.className = '';
+            }
+        }
+        if (id.substr(0,2) == 'pt') {
+            if (level < 2) {
+                tr.className = 'hiddenRow';
+            }
+            else {
+                tr.className = '';
+            }
+        }
+    }
+    //加入【详细】切换文字变化 --Findyou
+    detail_class=document.getElementsByClassName('detail');
+	//console.log(detail_class.length)
+	if (level == 3) {
+		for (var i = 0; i < detail_class.length; i++){
+			detail_class[i].innerHTML="收起"
+		}
+	}
+	else{
+			for (var i = 0; i < detail_class.length; i++){
+			detail_class[i].innerHTML="详细"
+		}
+	}
+}
+function drawCircle(pass, fail, error){ 
+    var color = ["#6c6","#c60","#c00"];  
+    var data = [pass,fail,error]; 
+    var text_arr = ["pass", "fail", "error"];
+
+    var canvas = document.getElementById("circle");  
+    var ctx = canvas.getContext("2d");  
+    var startPoint=0;
+    var width = 20, height = 10;
+    var posX = 112 * 2 + 20, posY = 30;
+    var textX = posX + width + 5, textY = posY + 10;
+    for(var i=0;i<data.length;i++){  
+        ctx.fillStyle = color[i];  
+        ctx.beginPath();  
+        ctx.moveTo(112,84);   
+        ctx.arc(112,84,84,startPoint,startPoint+Math.PI*2*(data[i]/(data[0]+data[1]+data[2])),false);  
+        ctx.fill();  
+        startPoint += Math.PI*2*(data[i]/(data[0]+data[1]+data[2]));  
+        ctx.fillStyle = color[i];  
+        ctx.fillRect(posX, posY + 20 * i, width, height);  
+        ctx.moveTo(posX, posY + 20 * i);  
+        ctx.font = 'bold 14px';
+        ctx.fillStyle = color[i];
+        var percent = text_arr[i] + ":"+data[i];  
+        ctx.fillText(percent, textX, textY + 20 * i);  
+
+    }
+}
+function showClassDetail(cid, count) {
+    var id_list = Array(count);
+    var toHide = 1;
+    for (var i = 0; i < count; i++) {
+        //ID修改 点 为 下划线 -Findyou
+        tid0 = 't' + cid.substr(1) + '_' + (i+1);
+        tid = 'f' + tid0;
+        tr = document.getElementById(tid);
+        if (!tr) {
+            tid = 'p' + tid0;
+            tr = document.getElementById(tid);
+        }
+        id_list[i] = tid;
+        if (tr.className) {
+            toHide = 0;
+        }
+    }
+    for (var i = 0; i < count; i++) {
+        tid = id_list[i];
+        //修改点击无法收起的BUG，加入【详细】切换文字变化 --Findyou
+        if (toHide) {
+            document.getElementById(tid).className = 'hiddenRow';
+            document.getElementById(cid).innerText = "详细"
+        }
+        else {
+            document.getElementById(tid).className = '';
+            document.getElementById(cid).innerText = "收起"
+        }
+    }
+}
+function html_escape(s) {
+    s = s.replace(/&/g,'&amp;');
+    s = s.replace(/</g,'&lt;');
+    s = s.replace(/>/g,'&gt;');
+    return s;
+}
+</script>
+<div class='heading'>
+<h1 style="font-family: Microsoft YaHei">自动化测试报告</h1>
+<p class='attribute' style="font-size:15px;"><strong>测试人员 : </strong> fanwei</p>
+<p class='attribute' style="font-size:15px;"><strong>开始时间 : </strong> 2019-09-23 11:00:19</p>
+<p class='attribute' style="font-size:15px;"><strong>合计耗时 : </strong> 0:03:31.796000</p>
+<p class='attribute' style="font-size:15px;"><strong>测试结果 : </strong> 总数 21，通过 17，失败 1，错误 3，通过率= 80.95%</p>
+
+<p class='description' style="font-size:15px;">用例执行情况</p>
+</div>
+<div class="piechart">
+    <div>
+        <canvas id="circle" width="400" height="168" </canvas>
+    </div>
+</div>
+
+
+<p id='show_detail_line'>
+<a class="btn btn-primary" href='javascript:showCase(0)'>概要</a>
+<a class="btn btn-danger" href='javascript:showCase(1)'>失败: 1 </a>
+<a class="btn btn-success" href='javascript:showCase(2)'>通过: 17 </a>
+<a class="btn btn-info" href='javascript:showCase(3)'>所有: 21 </a>
+</p>
+<table id='result_table' class="table table-condensed table-bordered table-hover">
+<colgroup>
+<col align='left' />
+<col align='right' />
+<col align='right' />
+<col align='right' />
+<col align='right' />
+<col align='right' />
+</colgroup>
+<tr id='header_row' class="text-center success" style="font-weight: bold;font-size: 14px;">
+    <td>用例集/测试用例</td>
+    <td>总计</td>
+    <td>通过</td>
+    <td>失败</td>
+    <td>错误</td>
+    <td>详细</td>
+</tr>
+
+<tr class='errorClass warning'style="font-size:12px;">
+    <td>test_cash_pay_chest.ShopCashPayChest</td>
+    <td class="text-center">21</td>
+    <td class="text-center">17</td>
+    <td class="text-center">1</td>
+    <td class="text-center">3</td>
+    <td class="text-center"><a href="javascript:showClassDetail('c1',21)" class="detail" id='c1'>详细</a></td>
+</tr>
+
+<tr id='pt1_1' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A1: 测试在开一盒礼券不足弹窗点击购买按钮，播放开礼盒动画</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_2' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A2: 测试开礼盒界面显示的礼盒数为1</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_3' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A3: 测试点击屏幕开启礼盒，礼盒数量减1</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_4' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A4: 测试开出来的松松在礼盒掉落池中</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_5' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A5: 测试开出来的松松等级显示正确</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_6' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A6: 测试开出来的松松进度条显示正确</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_7' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A7: 测试开完礼盒回到礼盒界面</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_8' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A8: 测试在十连抽礼券不足弹窗点击购买按钮，播放开礼盒动画</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_9' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A9: 测试开礼盒界面显示的礼盒数为10</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_10' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A10: 测试点击屏幕开启礼盒，礼盒数量减1</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_pt1_10' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_pt1_10'>通过</button>
+    <div id='div_pt1_10' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_pt1_10' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_pt1_10'>通过</button>
+    <div id='div_pt1_10' class="collapse in">
+    <pre>
+    
+pt1_10: [aircv][sift] threshold=0.7, result={'confidence': 0.634543851017952, 'result': [103, 304], 'rectangle': [(0, 40), (0, 423), (319, 423), (319, 40)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6749985665082932, 'result': [668, 1829], 'rectangle': [(564, 1718), (564, 1939), (772, 1939), (772, 1718)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6803622990846634, 'result': [204, 213], 'rectangle': [(100, 100), (100, 325), (308, 325), (308, 100)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6803622990846634, 'result': [668, 1831], 'rectangle': [(564, 1718), (564, 1943), (772, 1943), (772, 1718)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6788776516914368, 'result': [204, 213], 'rectangle': [(100, 100), (100, 325), (308, 325), (308, 100)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6788776516914368, 'result': [668, 1831], 'rectangle': [(564, 1718), (564, 1943), (772, 1943), (772, 1718)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6332809329032898, 'result': [103, 304], 'rectangle': [(0, 40), (0, 423), (319, 423), (319, 40)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6743419468402863, 'result': [668, 1829], 'rectangle': [(564, 1718), (564, 1939), (772, 1939), (772, 1718)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6056641563773155, 'result': [204, 223], 'rectangle': [(100, 91), (100, 354), (308, 354), (308, 91)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6056641563773155, 'result': [668, 1841], 'rectangle': [(564, 1709), (564, 1972), (772, 1972), (772, 1709)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.531950730830431, 'result': (220, 217), 'rectangle': [(105, 113), (105, 322), (336, 322), (336, 113)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.531950730830431, 'result': (684, 1835), 'rectangle': [(569, 1731), (569, 1940), (800, 1940), (800, 1731)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6453036516904831, 'result': [676, 1935], 'rectangle': [(582, 1591), (582, 2159), (769, 2159), (769, 1591)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5436311848461628, 'result': [205, 235], 'rectangle': [(89, 102), (89, 367), (320, 367), (320, 102)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5436311848461628, 'result': [669, 1853], 'rectangle': [(553, 1720), (553, 1985), (784, 1985), (784, 1720)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5324734374880791, 'result': [210, 248], 'rectangle': [(100, 91), (100, 404), (319, 404), (319, 91)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6434983760118484, 'result': (204, 214), 'rectangle': [(100, 101), (100, 328), (308, 328), (308, 101)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6434983760118484, 'result': (668, 1832), 'rectangle': [(564, 1719), (564, 1946), (772, 1946), (772, 1719)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5859459340572357, 'result': [167, 423L], 'rectangle': [(15, 0), (15, 423), (318, 423), (318, 0)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.47795175574719906, 'result': [660, 1680], 'rectangle': [(528, 1457), (528, 1902), (791, 1902), (791, 1457)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5997718274593353, 'result': [206, 214], 'rectangle': [(105, 98), (105, 329), (306, 329), (306, 98)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5997718274593353, 'result': [670, 1832], 'rectangle': [(569, 1716), (569, 1947), (770, 1947), (770, 1716)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6023007184267044, 'result': [205, 211], 'rectangle': [(97, 103), (97, 318), (312, 318), (312, 103)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6023007184267044, 'result': [669, 1829], 'rectangle': [(561, 1721), (561, 1936), (776, 1936), (776, 1721)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5682181790471077, 'result': (198, 172), 'rectangle': [(101, 136), (101, 208), (296, 208), (296, 136)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5682181790471077, 'result': (662, 1790), 'rectangle': [(565, 1754), (565, 1826), (760, 1826), (760, 1754)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.7357286363840103, 'result': (213, 227), 'rectangle': [(112, 118), (112, 337), (314, 337), (314, 118)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.47085899859666824, 'result': [659, 1679], 'rectangle': [(525, 1455), (525, 1902), (792, 1902), (792, 1455)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5086661363020539, 'result': [25, 423L], 'rectangle': [(0, 0), (0, 423), (407, 423), (407, 0)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.43713587522506714, 'result': (395, 237), 'rectangle': [(242, 167), (242, 308), (407, 308), (407, 167)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5030228518880904, 'result': (859, 1855), 'rectangle': [(706, 1785), (706, 1926), (1013, 1926), (1013, 1785)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5677786394953728, 'result': [225, 290], 'rectangle': [(141, 6), (141, 423), (308, 423), (308, 6)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6566033363342285, 'result': [661, 2146], 'rectangle': [(547, 1322), (547, 2159), (774, 2159), (774, 1322)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6245505586266518, 'result': [204, 211], 'rectangle': [(96, 103), (96, 318), (311, 318), (311, 103)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6245505586266518, 'result': [668, 1829], 'rectangle': [(560, 1721), (560, 1936), (775, 1936), (775, 1721)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5875245705246925, 'result': (151, 131), 'rectangle': [(25, 73), (25, 190), (277, 190), (277, 73)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5732344388961792, 'result': (623, 1755), 'rectangle': [(503, 1703), (503, 1808), (744, 1808), (744, 1703)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.7701610326766968, 'result': (207, 221), 'rectangle': [(97, 104), (97, 339), (318, 339), (318, 104)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.4838096462190151, 'result': [668, 1685], 'rectangle': [(565, 1472), (565, 1897), (770, 1897), (770, 1472)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.44105491042137146, 'result': (395, 237), 'rectangle': [(242, 167), (242, 308), (407, 308), (407, 167)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5103136077523232, 'result': (859, 1855), 'rectangle': [(706, 1785), (706, 1926), (1013, 1926), (1013, 1785)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.59493388235569, 'result': (127, 115), 'rectangle': [(1, 44), (1, 187), (254, 187), (254, 44)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5837496370077133, 'result': (593, 1735), 'rectangle': [(468, 1665), (468, 1805), (719, 1805), (719, 1665)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.761982798576355, 'result': (208, 222), 'rectangle': [(98, 106), (98, 339), (319, 339), (319, 106)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5374366343021393, 'result': [180, 252], 'rectangle': [(0, 68), (0, 423), (371, 423), (371, 68)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5528725273907185, 'result': [644, 1870], 'rectangle': [(452, 1686), (452, 2053), (835, 2053), (835, 1686)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.507045722566545, 'result': [206, 232], 'rectangle': [(76, 101), (76, 362), (335, 362), (335, 101)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.507045722566545, 'result': [670, 1850], 'rectangle': [(540, 1719), (540, 1980), (799, 1980), (799, 1719)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.4431087300181389, 'result': [234, 256], 'rectangle': [(197, 76), (197, 423), (270, 423), (270, 76)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.4499204084277153, 'result': [698, 1874], 'rectangle': [(661, 1694), (661, 2054), (734, 2054), (734, 1694)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6087968274950981, 'result': [206, 212], 'rectangle': [(104, 102), (104, 321), (307, 321), (307, 102)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6087968274950981, 'result': [670, 1830], 'rectangle': [(568, 1720), (568, 1939), (771, 1939), (771, 1720)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6087882220745087, 'result': [206, 212], 'rectangle': [(104, 102), (104, 321), (307, 321), (307, 102)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6087882220745087, 'result': [670, 1830], 'rectangle': [(568, 1720), (568, 1939), (771, 1939), (771, 1720)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6040934547781944, 'result': [208, 212], 'rectangle': [(108, 102), (108, 321), (307, 321), (307, 102)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6040934547781944, 'result': [672, 1830], 'rectangle': [(572, 1720), (572, 1939), (771, 1939), (771, 1720)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5572477839887142, 'result': (259, 101), 'rectangle': [(216, 50), (216, 152), (302, 152), (302, 50)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5572477839887142, 'result': (723, 1719), 'rectangle': [(680, 1668), (680, 1770), (766, 1770), (766, 1668)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6344157606363297, 'result': (225, 245), 'rectangle': [(105, 141), (105, 350), (345, 350), (345, 141)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6302344053983688, 'result': (690, 1864), 'rectangle': [(570, 1761), (570, 1968), (811, 1968), (811, 1761)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6009596660733223, 'result': (149, 129), 'rectangle': [(12, 64), (12, 195), (287, 195), (287, 64)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6007934212684631, 'result': (614, 1748), 'rectangle': [(477, 1683), (477, 1813), (752, 1813), (752, 1683)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.8240018486976624, 'result': (204, 216), 'rectangle': [(98, 97), (98, 335), (311, 335), (311, 97)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.592111773788929, 'result': [0, 183], 'rectangle': [(0, 135), (0, 230), (407, 230), (407, 135)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6057965084910393, 'result': [668, 1831], 'rectangle': [(564, 1718), (564, 1943), (772, 1943), (772, 1718)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5261322781443596, 'result': [204, 224], 'rectangle': [(94, 89), (94, 359), (313, 359), (313, 89)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5261322781443596, 'result': [668, 1842], 'rectangle': [(558, 1707), (558, 1977), (777, 1977), (777, 1707)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.587096706032753, 'result': [205, 209], 'rectangle': [(94, 104), (94, 313), (315, 313), (315, 104)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.587096706032753, 'result': [669, 1827], 'rectangle': [(558, 1722), (558, 1931), (779, 1931), (779, 1722)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5488503314554691, 'result': (180, 169), 'rectangle': [(95, 138), (95, 201), (266, 201), (266, 138)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5812777653336525, 'result': (672, 1792), 'rectangle': [(573, 1759), (573, 1826), (771, 1826), (771, 1759)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5619667582213879, 'result': (243, 249), 'rectangle': [(134, 128), (134, 371), (353, 371), (353, 128)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5619667582213879, 'result': (707, 1867), 'rectangle': [(598, 1746), (598, 1989), (817, 1989), (817, 1746)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5946449786424637, 'result': (181, 150), 'rectangle': [(44, 92), (44, 208), (318, 208), (318, 92)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5803651511669159, 'result': (650, 1771), 'rectangle': [(515, 1717), (515, 1826), (785, 1826), (785, 1717)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.7244850248098373, 'result': (211, 222), 'rectangle': [(106, 100), (106, 344), (316, 344), (316, 100)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6090933382511139, 'result': (203, 212), 'rectangle': [(99, 100), (99, 325), (307, 325), (307, 100)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6090933382511139, 'result': (667, 1830), 'rectangle': [(563, 1718), (563, 1943), (771, 1943), (771, 1718)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6590540409088135, 'result': (202, 212), 'rectangle': [(99, 101), (99, 324), (306, 324), (306, 101)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6590540409088135, 'result': (666, 1830), 'rectangle': [(563, 1719), (563, 1942), (770, 1942), (770, 1719)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6590276062488556, 'result': (202, 212), 'rectangle': [(99, 101), (99, 324), (306, 324), (306, 101)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6590276062488556, 'result': (666, 1830), 'rectangle': [(563, 1719), (563, 1942), (770, 1942), (770, 1719)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6588458865880966, 'result': (202, 212), 'rectangle': [(99, 101), (99, 324), (306, 324), (306, 101)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.6588458865880966, 'result': (666, 1830), 'rectangle': [(563, 1719), (563, 1942), (770, 1942), (770, 1719)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.659129872918129, 'result': (202, 212), 'rectangle': [(99, 101), (99, 324), (306, 324), (306, 101)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.659129872918129, 'result': (666, 1830), 'rectangle': [(563, 1719), (563, 1942), (770, 1942), (770, 1719)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5867637172341347, 'result': (201, 172), 'rectangle': [(103, 135), (103, 210), (299, 210), (299, 135)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.5867637172341347, 'result': (665, 1790), 'rectangle': [(567, 1753), (567, 1828), (763, 1828), (763, 1753)]}
+[aircv][sift] threshold=0.7, result={'confidence': 0.7362283319234848, 'result': (212, 224), 'rectangle': [(104, 103), (104, 346), (320, 346), (320, 103)]}
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='pt1_11' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A11: 测试开完十次礼盒显示获得界面</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_12' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A12: 测试获得界面显示的豪华礼券数正确</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_13' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A13: 测试点击确认按钮，回到礼盒界面</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_14' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A14: 测试点击再抽十次，弹出礼券不足弹窗</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='ft1_15' class='none'>
+    <td class='failCase'><div class='testcase'>test_A15: 测试礼券不足弹窗的文案显示正确</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_15' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_15'>失败</button>
+    <div id='div_ft1_15' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_15' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_15'>失败</button>
+    <div id='div_ft1_15' class="collapse in">
+    <pre>
+    
+ft1_15: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 288, in test_A15
+    self.assertTrue(('x' + luxuryCouponPrice == luxuryCoupon) and (buy == TextDic['shop_buy']) and (luxuryCouponCount == 'x1') and (buyInfo == correctBuyInfo), caseList[17])
+AssertionError: 测试礼券不足弹窗的文案显示正确
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='pt1_16' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A16: 测试在礼券不足弹窗，点击取消按钮，回到获得界面</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_17' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A17: 测试在礼券不足弹窗，点击购买按钮，播放开启礼盒动画</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='ft1_18' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A18: 测试在礼券不足弹窗，点击购买按钮，弹出钻石不足弹窗</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_18' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_18'>错误</button>
+    <div id='div_ft1_18' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_18' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_18'>错误</button>
+    <div id='div_ft1_18' class="collapse in">
+    <pre>
+    
+ft1_18: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 307, in test_A18
+    poco('label_cishu').wait().click()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 23, in wrapped
+    return func(proxy, *args, **kwargs)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 282, in click
+    self.wait_for_appearance(timeout=5)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 568, in wait_for_appearance
+    raise PocoTargetTimeout('appearance', self)
+PocoTargetTimeout: Waiting timeout for appearance of "UIObjectProxy of "label_cishu""
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_19' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A19: 测试钻石不足弹窗文案显示正确</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_19' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_19'>错误</button>
+    <div id='div_ft1_19' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_19' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_19'>错误</button>
+    <div id='div_ft1_19' class="collapse in">
+    <pre>
+    
+ft1_19: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 320, in test_A19
+    info = poco("label_info").get_text()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 674, in get_text
+    text = self.attr('text')
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 39, in wrapped
+    return func(self, *args, **kwargs)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 621, in attr
+    nodes = self._do_query(multiple=False)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 758, in _do_query
+    raise PocoNoSuchNodeException(self)
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "label_info"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_20' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A20: 测试钻石不足弹窗点击取消按钮，回到获得界面</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_20' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_20'>错误</button>
+    <div id='div_ft1_20' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_20' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_20'>错误</button>
+    <div id='div_ft1_20' class="collapse in">
+    <pre>
+    
+ft1_20: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 325, in test_A20
+    poco('label_cancel').click()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 23, in wrapped
+    return func(proxy, *args, **kwargs)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 282, in click
+    self.wait_for_appearance(timeout=5)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 568, in wait_for_appearance
+    raise PocoTargetTimeout('appearance', self)
+PocoTargetTimeout: Waiting timeout for appearance of "UIObjectProxy of "label_cancel""
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='pt1_21' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A21: 测试钻石不足弹窗点击前往按钮，跳转到商店界面</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='total_row' class="text-center active">
+    <td style="font-size:14px;">总计</td>
+    <td style="font-size:12px;">21</td>
+    <td style="font-size:12px;">17</td>
+    <td style="font-size:12px;">1</td>
+    <td style="font-size:12px;">3</td>
+    <td style="font-size:14px;">通过率：80.95%</td>
+</tr>
+</table>
+<script>
+    drawCircle(17, 1, 3)
+</script>
+
+<div id='ending'>&nbsp;</div>
+    <div style=" position:fixed;right:50px; bottom:30px; width:20px; height:20px;cursor:pointer">
+    <a href="#"><span class="glyphicon glyphicon-eject" style = "font-size:30px;" aria-hidden="true">
+    </span></a></div>
+    
+</body>
+</html>

@@ -1,0 +1,15 @@
+  涉及到的位置                                       本地的地址
+adb.exe的所在位置                  F:\\AirtestIDE_2018-10-11_py3_win64\\airtest\\core\\android\\static\\adb\\windows
+excel测试用例所在的位置            F:\my-testflow-master\TsumTest\case\UITestCase.xls
+用例脚本存放的位置                 F:\\my-testflow-master\\TsumTest\\case
+测试报告存放的位置                 F:\\my-testflow-master\\TsumTest\\report
+备份脚本的备份文件的位置           F:\\my-testflow-master\\TsumTest\\case\\备份
+bat脚本存放的位置                  F:\\my-testflow-master\\TsumTest\\Function\\run.bat
+svn.exe的存放位置                  C:\\Program Files\\TortoiseSVN\\bin
+svn服务器上文案存放的位置          http://svn.happyelements.net/repos/svndata3/TsumTsum/Share/mobile-text/
+本地svn文案的存放位置              F:\\my-testflow-master\\TsumTest\\text
+svn的用户名                        fanwei.zeng
+svn的密码                          Zfw.950420
+configmanager的URL                 http://config.happyelements.net:8082/api
+meta要读取的分支                   tsumtsum_dev
+用户名密码                         service_auth     &&     qwer1234!

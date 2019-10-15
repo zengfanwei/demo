@@ -1,0 +1,655 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>自动化测试报告</title>
+    <meta name="generator" content="HTMLTestRunner 0.8.2.1"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    
+<style type="text/css" media="screen">
+body        { font-family: Microsoft YaHei,Tahoma,arial,helvetica,sans-serif;padding: 20px; font-size: 80%; }
+table       { font-size: 100%; }
+/* -- heading ---------------------------------------------------------------------- */
+.heading {
+    margin-top: 0ex;
+    margin-bottom: 1ex;
+}
+.heading .description {
+    margin-top: 4ex;
+    margin-bottom: 6ex;
+}
+.piechart{  
+    position:absolute;  ;
+    top:50px;  
+    left:400px; 
+    width: 200px;
+    float: left;
+    display:  inline;
+}
+/* -- report ------------------------------------------------------------------------ */
+#total_row  { font-weight: bold; }
+.passCase   { color: #5cb85c; }
+.failCase   { color: #d9534f; font-weight: bold; }
+.errorCase  { color: #f0ad4e; font-weight: bold; }
+.hiddenRow  { display: none; }
+.testcase   { margin-left: 2em; }
+</style>
+
+</head>
+<body >
+<script language="javascript" type="text/javascript">
+output_list = Array();
+/*level 调整增加只显示通过用例的分类 --Findyou
+0:Summary //all hiddenRow
+1:Failed  //pt hiddenRow, ft none
+2:Pass    //pt none, ft hiddenRow
+3:All     //pt none, ft none
+*/
+function showCase(level) {
+    trs = document.getElementsByTagName("tr");
+    for (var i = 0; i < trs.length; i++) {
+        tr = trs[i];
+        id = tr.id;
+        if (id.substr(0,2) == 'ft') {
+            if (level == 2 || level == 0 ) {
+                tr.className = 'hiddenRow';
+            }
+            else {
+                tr.className = '';
+            }
+        }
+        if (id.substr(0,2) == 'pt') {
+            if (level < 2) {
+                tr.className = 'hiddenRow';
+            }
+            else {
+                tr.className = '';
+            }
+        }
+    }
+    //加入【详细】切换文字变化 --Findyou
+    detail_class=document.getElementsByClassName('detail');
+	//console.log(detail_class.length)
+	if (level == 3) {
+		for (var i = 0; i < detail_class.length; i++){
+			detail_class[i].innerHTML="收起"
+		}
+	}
+	else{
+			for (var i = 0; i < detail_class.length; i++){
+			detail_class[i].innerHTML="详细"
+		}
+	}
+}
+function drawCircle(pass, fail, error){ 
+    var color = ["#6c6","#c60","#c00"];  
+    var data = [pass,fail,error]; 
+    var text_arr = ["pass", "fail", "error"];
+
+    var canvas = document.getElementById("circle");  
+    var ctx = canvas.getContext("2d");  
+    var startPoint=0;
+    var width = 20, height = 10;
+    var posX = 112 * 2 + 20, posY = 30;
+    var textX = posX + width + 5, textY = posY + 10;
+    for(var i=0;i<data.length;i++){  
+        ctx.fillStyle = color[i];  
+        ctx.beginPath();  
+        ctx.moveTo(112,84);   
+        ctx.arc(112,84,84,startPoint,startPoint+Math.PI*2*(data[i]/(data[0]+data[1]+data[2])),false);  
+        ctx.fill();  
+        startPoint += Math.PI*2*(data[i]/(data[0]+data[1]+data[2]));  
+        ctx.fillStyle = color[i];  
+        ctx.fillRect(posX, posY + 20 * i, width, height);  
+        ctx.moveTo(posX, posY + 20 * i);  
+        ctx.font = 'bold 14px';
+        ctx.fillStyle = color[i];
+        var percent = text_arr[i] + ":"+data[i];  
+        ctx.fillText(percent, textX, textY + 20 * i);  
+
+    }
+}
+function showClassDetail(cid, count) {
+    var id_list = Array(count);
+    var toHide = 1;
+    for (var i = 0; i < count; i++) {
+        //ID修改 点 为 下划线 -Findyou
+        tid0 = 't' + cid.substr(1) + '_' + (i+1);
+        tid = 'f' + tid0;
+        tr = document.getElementById(tid);
+        if (!tr) {
+            tid = 'p' + tid0;
+            tr = document.getElementById(tid);
+        }
+        id_list[i] = tid;
+        if (tr.className) {
+            toHide = 0;
+        }
+    }
+    for (var i = 0; i < count; i++) {
+        tid = id_list[i];
+        //修改点击无法收起的BUG，加入【详细】切换文字变化 --Findyou
+        if (toHide) {
+            document.getElementById(tid).className = 'hiddenRow';
+            document.getElementById(cid).innerText = "详细"
+        }
+        else {
+            document.getElementById(tid).className = '';
+            document.getElementById(cid).innerText = "收起"
+        }
+    }
+}
+function html_escape(s) {
+    s = s.replace(/&/g,'&amp;');
+    s = s.replace(/</g,'&lt;');
+    s = s.replace(/>/g,'&gt;');
+    return s;
+}
+</script>
+<div class='heading'>
+<h1 style="font-family: Microsoft YaHei">自动化测试报告</h1>
+<p class='attribute' style="font-size:15px;"><strong>测试人员 : </strong> fanwei</p>
+<p class='attribute' style="font-size:15px;"><strong>开始时间 : </strong> 2019-09-18 18:57:08</p>
+<p class='attribute' style="font-size:15px;"><strong>合计耗时 : </strong> 0:03:10.087000</p>
+<p class='attribute' style="font-size:15px;"><strong>测试结果 : </strong> 总数 21，通过 9，失败 1，错误 11，通过率= 42.86%</p>
+
+<p class='description' style="font-size:15px;">用例执行情况</p>
+</div>
+<div class="piechart">
+    <div>
+        <canvas id="circle" width="400" height="168" </canvas>
+    </div>
+</div>
+
+
+<p id='show_detail_line'>
+<a class="btn btn-primary" href='javascript:showCase(0)'>概要</a>
+<a class="btn btn-danger" href='javascript:showCase(1)'>失败: 1 </a>
+<a class="btn btn-success" href='javascript:showCase(2)'>通过: 9 </a>
+<a class="btn btn-info" href='javascript:showCase(3)'>所有: 21 </a>
+</p>
+<table id='result_table' class="table table-condensed table-bordered table-hover">
+<colgroup>
+<col align='left' />
+<col align='right' />
+<col align='right' />
+<col align='right' />
+<col align='right' />
+<col align='right' />
+</colgroup>
+<tr id='header_row' class="text-center success" style="font-weight: bold;font-size: 14px;">
+    <td>用例集/测试用例</td>
+    <td>总计</td>
+    <td>通过</td>
+    <td>失败</td>
+    <td>错误</td>
+    <td>详细</td>
+</tr>
+
+<tr class='errorClass warning'style="font-size:12px;">
+    <td>test_cash_pay_chest.ShopCashPayChest</td>
+    <td class="text-center">21</td>
+    <td class="text-center">9</td>
+    <td class="text-center">1</td>
+    <td class="text-center">11</td>
+    <td class="text-center"><a href="javascript:showClassDetail('c1',21)" class="detail" id='c1'>详细</a></td>
+</tr>
+
+<tr id='pt1_1' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A1: 测试在开一盒礼券不足弹窗点击购买按钮，播放开礼盒动画</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_pt1_1' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_pt1_1'>通过</button>
+    <div id='div_pt1_1' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_pt1_1' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_pt1_1'>通过</button>
+    <div id='div_pt1_1' class="collapse in">
+    <pre>
+    
+pt1_1: [120.67198236, 2041.4592]
+[304.50001032, 1776.0000232799998]
+[742.5, 1389.00000528]
+[742.5, 1389.00000528]
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='pt1_2' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A2: 测试开礼盒界面显示的礼盒数为1</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_3' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A3: 测试点击屏幕开启礼盒，礼盒数量减1</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_pt1_3' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_pt1_3'>通过</button>
+    <div id='div_pt1_3' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_pt1_3' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_pt1_3'>通过</button>
+    <div id='div_pt1_3' class="collapse in">
+    <pre>
+    
+pt1_3: [734.9967, 1844.892288]
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='pt1_4' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A4: 测试开出来的松松在礼盒掉落池中</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_5' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A5: 测试开出来的松松等级显示正确</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_6' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A6: 测试开出来的松松进度条显示正确</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='pt1_7' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A7: 测试开完礼盒回到礼盒界面</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_pt1_7' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_pt1_7'>通过</button>
+    <div id='div_pt1_7' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_pt1_7' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_pt1_7'>通过</button>
+    <div id='div_pt1_7' class="collapse in">
+    <pre>
+    
+pt1_7: [734.9697, 1844.90901936]
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='pt1_8' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A8: 测试在十连抽礼券不足弹窗点击购买按钮，播放开礼盒动画</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_pt1_8' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_pt1_8'>通过</button>
+    <div id='div_pt1_8' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_pt1_8' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_pt1_8'>通过</button>
+    <div id='div_pt1_8' class="collapse in">
+    <pre>
+    
+pt1_8: [775.49998968, 1779.0000624]
+[742.5, 1389.00000528]
+[742.5, 1389.00000528]
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='pt1_9' class='hiddenRow'>
+    <td class='passCase'><div class='testcase'>test_A9: 测试开礼盒界面显示的礼盒数为10</div></td>
+    <td colspan='5' align='center'><span class="label label-success success">通过</span></td>
+</tr>
+
+<tr id='ft1_10' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A10: 测试点击屏幕开启礼盒，礼盒数量减1</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_10' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_10'>错误</button>
+    <div id='div_ft1_10' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_10' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_10'>错误</button>
+    <div id='div_ft1_10' class="collapse in">
+    <pre>
+    
+ft1_10: [734.9967, 1844.892288]
+Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 201, in test_A10
+    checkTextEqual('c2_progress_top')
+  File "D:\workspace\UITest_TsumTsum\Basics_test\BasicFunction.py", line 83, in checkTextEqual
+    while True:
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 673, in get_text
+    text = self.attr('text')
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 39, in wrapped
+    return func(self, *args, **kwargs)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 620, in attr
+    nodes = self._do_query(multiple=False)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 757, in _do_query
+    raise PocoNoSuchNodeException(self)
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "c2_progress_top"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_11' class='none'>
+    <td class='failCase'><div class='testcase'>test_A11: 测试开完十次礼盒显示获得界面</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_11' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_11'>失败</button>
+    <div id='div_ft1_11' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_11' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_11'>失败</button>
+    <div id='div_ft1_11' class="collapse in">
+    <pre>
+    
+ft1_11: [734.9697, 1844.90901936]
+Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 233, in test_A11
+    self.assertTrue(poco('label_get_ten').exists(), caseList[13])
+AssertionError: 测试开完十次礼盒显示获得界面
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_12' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A12: 测试获得界面显示的豪华礼券数正确</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_12' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_12'>错误</button>
+    <div id='div_ft1_12' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_12' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_12'>错误</button>
+    <div id='div_ft1_12' class="collapse in">
+    <pre>
+    
+ft1_12: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 240, in test_A12
+    couponCount = poco("label_ticket").get_text()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 673, in get_text
+    text = self.attr('text')
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 39, in wrapped
+    return func(self, *args, **kwargs)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 620, in attr
+    nodes = self._do_query(multiple=False)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 757, in _do_query
+    raise PocoNoSuchNodeException(self)
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "label_ticket"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_13' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A13: 测试点击确认按钮，回到礼盒界面</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_13' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_13'>错误</button>
+    <div id='div_ft1_13' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_13' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_13'>错误</button>
+    <div id='div_ft1_13' class="collapse in">
+    <pre>
+    
+ft1_13: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 245, in test_A13
+    Click("label_ok")
+  File "D:\workspace\UITest_TsumTsum\Basics_test\BasicFunction.py", line 31, in Click
+    poco(botton).click()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 29, in wrapped
+    raise e
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "label_ok"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_14' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A14: 测试点击再抽十次，弹出礼券不足弹窗</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_14' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_14'>错误</button>
+    <div id='div_ft1_14' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_14' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_14'>错误</button>
+    <div id='div_ft1_14' class="collapse in">
+    <pre>
+    
+ft1_14: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 251, in test_A14
+    Click("btn_buy_ten")
+  File "D:\workspace\UITest_TsumTsum\Basics_test\BasicFunction.py", line 31, in Click
+    poco(botton).click()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 29, in wrapped
+    raise e
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "btn_buy_ten"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_15' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A15: 测试礼券不足弹窗的文案显示正确</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_15' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_15'>错误</button>
+    <div id='div_ft1_15' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_15' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_15'>错误</button>
+    <div id='div_ft1_15' class="collapse in">
+    <pre>
+    
+ft1_15: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 272, in test_A15
+    luxuryCoupon = poco(absoluteName="UI Root/PromptPopupPanel/c2_main/NormalContainer/c2_cost/propIcon_cost/label_count").get_text()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 673, in get_text
+    text = self.attr('text')
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 39, in wrapped
+    return func(self, *args, **kwargs)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 620, in attr
+    nodes = self._do_query(multiple=False)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 757, in _do_query
+    raise PocoNoSuchNodeException(self)
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "absoluteName=UI Root/PromptPopupPanel/c2_main/NormalContainer/c2_cost/propIcon_cost/label_count"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_16' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A16: 测试在礼券不足弹窗，点击取消按钮，回到获得界面</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_16' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_16'>错误</button>
+    <div id='div_ft1_16' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_16' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_16'>错误</button>
+    <div id='div_ft1_16' class="collapse in">
+    <pre>
+    
+ft1_16: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 281, in test_A16
+    Click("label_cancel")
+  File "D:\workspace\UITest_TsumTsum\Basics_test\BasicFunction.py", line 31, in Click
+    poco(botton).click()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 29, in wrapped
+    raise e
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "label_cancel"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_17' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A17: 测试在礼券不足弹窗，点击购买按钮，播放开启礼盒动画</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_17' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_17'>错误</button>
+    <div id='div_ft1_17' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_17' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_17'>错误</button>
+    <div id='div_ft1_17' class="collapse in">
+    <pre>
+    
+ft1_17: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 287, in test_A17
+    Click("btn_buy_ten")
+  File "D:\workspace\UITest_TsumTsum\Basics_test\BasicFunction.py", line 31, in Click
+    poco(botton).click()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 29, in wrapped
+    raise e
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "btn_buy_ten"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_18' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A18: 测试在礼券不足弹窗，点击购买按钮，弹出钻石不足弹窗</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_18' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_18'>错误</button>
+    <div id='div_ft1_18' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_18' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_18'>错误</button>
+    <div id='div_ft1_18' class="collapse in">
+    <pre>
+    
+ft1_18: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 294, in test_A18
+    Click("label_cishu")
+  File "D:\workspace\UITest_TsumTsum\Basics_test\BasicFunction.py", line 31, in Click
+    poco(botton).click()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 29, in wrapped
+    raise e
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "label_cishu"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_19' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A19: 测试钻石不足弹窗文案显示正确</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_19' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_19'>错误</button>
+    <div id='div_ft1_19' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_19' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_19'>错误</button>
+    <div id='div_ft1_19' class="collapse in">
+    <pre>
+    
+ft1_19: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 307, in test_A19
+    info = poco("label_info").get_text()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 673, in get_text
+    text = self.attr('text')
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 39, in wrapped
+    return func(self, *args, **kwargs)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 620, in attr
+    nodes = self._do_query(multiple=False)
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 757, in _do_query
+    raise PocoNoSuchNodeException(self)
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "label_info"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_20' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A20: 测试钻石不足弹窗点击取消按钮，回到获得界面</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_20' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_20'>错误</button>
+    <div id='div_ft1_20' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_20' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_20'>错误</button>
+    <div id='div_ft1_20' class="collapse in">
+    <pre>
+    
+ft1_20: Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 312, in test_A20
+    Click('label_cancel')
+  File "D:\workspace\UITest_TsumTsum\Basics_test\BasicFunction.py", line 31, in Click
+    poco(botton).click()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 29, in wrapped
+    raise e
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "label_cancel"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='ft1_21' class='none'>
+    <td class='errorCase'><div class='testcase'>test_A21: 测试钻石不足弹窗点击前往按钮，跳转到商店界面</div></td>
+    <td colspan='5' align='center'>
+    <!--默认收起错误信息 -Findyou
+    <button id='btn_ft1_21' type="button"  class="btn btn-danger btn-xs collapsed" data-toggle="collapse" data-target='#div_ft1_21'>错误</button>
+    <div id='div_ft1_21' class="collapse">  -->
+    <!-- 默认展开错误信息 -Findyou -->
+    <button id='btn_ft1_21' type="button"  class="btn btn-danger btn-xs" data-toggle="collapse" data-target='#div_ft1_21'>错误</button>
+    <div id='div_ft1_21' class="collapse in">
+    <pre>
+    
+ft1_21: [775.49998968, 1779.0000624]
+Traceback (most recent call last):
+  File "D:\workspace\UITest_TsumTsum\Case\test_cash_pay_chest.py", line 319, in test_A21
+    Click("label_confirm")
+  File "D:\workspace\UITest_TsumTsum\Basics_test\BasicFunction.py", line 31, in Click
+    poco(botton).click()
+  File "C:\Python27\lib\site-packages\poco\proxy.py", line 29, in wrapped
+    raise e
+PocoNoSuchNodeException: Cannot find any visible node by query UIObjectProxy of "label_confirm"
+
+
+    </pre>
+    </div>
+    </td>
+</tr>
+
+<tr id='total_row' class="text-center active">
+    <td style="font-size:14px;">总计</td>
+    <td style="font-size:12px;">21</td>
+    <td style="font-size:12px;">9</td>
+    <td style="font-size:12px;">1</td>
+    <td style="font-size:12px;">11</td>
+    <td style="font-size:14px;">通过率：42.86%</td>
+</tr>
+</table>
+<script>
+    drawCircle(9, 1, 11)
+</script>
+
+<div id='ending'>&nbsp;</div>
+    <div style=" position:fixed;right:50px; bottom:30px; width:20px; height:20px;cursor:pointer">
+    <a href="#"><span class="glyphicon glyphicon-eject" style = "font-size:30px;" aria-hidden="true">
+    </span></a></div>
+    
+</body>
+</html>

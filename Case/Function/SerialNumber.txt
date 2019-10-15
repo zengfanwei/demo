@@ -1,0 +1,8 @@
+﻿  设备名                   IP                      WIFI
+Xiaomi_Mix 2     10.130.149.155:6680         HEC-WLAN-5G
+OPPO_R9s         10.130.149.210:6677         HEC-WLAN-5G
+VIVO_X9          10.130.150.240:6675         HEC-WLAN-5G
+OPPO_R11         10.130.151.46:6682          HEC-WLAN-5G
+MOTO_Nexus6      10.130.148.138:6684         HEC-WLAN-5G
+Redmi_Note3      10.130.149.239:6686         HEC-WLAN-2.4G
+VIVO_Y66         10.130.144.172:6688         HEC-QA-2.4G
